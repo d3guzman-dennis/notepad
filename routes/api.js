@@ -1,33 +1,32 @@
 
 const fs = require("fs")
-//const uuid = require("uuid")
 const { v4: uuid } = require('uuid')
 const path = require("path")
 
-//API for renderning  notes stored on db
-module.exports = function(app){
-app.get("/api/notes", (req, res) => res.sendFile(path.join(__dirname, "../db/db.json")))
 
- //API for storing user added note and renderning updated  notes stored on db.json
- app.post("/api/notes", (req, res) => {
+module.exports = function(app){
+app.get("./api/notes", (req, res) => res.sendFile(path.join(__dirname, "../db/db.json")))
+
+ //adding user input notes
+ app.post("./api/notes", (req, res) => {
      let newNote ={
-         //UUID generates unique id
+         //generating unique id for each note
          id:uuid(),
          title:req.body.title,
          text:req.body.text
      };
-     let oldNote =JSON.parse(fs.readFileSync(path.join(__dirname,"../db/db.json"),"utf-8")) 
-     oldNote.push(newNote)
-     fs.writeFileSync("./db/db.json",JSON.stringify(oldNote))
-     res.json(oldNote)
+     let prevNote =JSON.parse(fs.readFileSync(path.join(__dirname,"../db/db.json"),"utf-8")) 
+     prevNote.push(newNote)
+     fs.writeFileSync("./db/db.json",JSON.stringify(prevNote))
+     res.json(prevNote)
  })
 
  
- //Receive a query parameter containing the id of a note to delete.
- app.delete("/api/notes/:id", (req, res) => {
+ //querying for a note to delete.
+ app.delete("./api/notes/:id", (req, res) => {
      let choosen = req.params.id
-     let oldNote =JSON.parse(fs.readFileSync(path.join(__dirname,"../db/db.json"),"utf-8"))
-     const newNote =oldNote.filter(oldNote=>oldNote.id != choosen)
+     let prevNote =JSON.parse(fs.readFileSync(path.join(__dirname,"../db/db.json"),"utf-8"))
+     const newNote =prevNote.filter(prevNote=>prevNote.id != choosen)
      fs.writeFileSync("./db/db.json",JSON.stringify(newNote))
      res.send(newNote)
  })
